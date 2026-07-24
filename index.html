@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Streaming Bola</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #1a1a1a; color: #ffffff; font-family: sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 720px; margin: 0 auto; padding: 10px; }
+        
+        .header-wrapper { background-color: #000; padding: 15px; border-bottom: 1px solid #333; }
+        .brand-header { max-width: 720px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .brand-logo { color: #ff0000; font-size: 20px; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .brand-logo span { color: #fff; }
+        
+        /* Layout baru untuk Menu dan Jam */
+        .menu-wrapper { display: flex; align-items: center; gap: 15px; }
+        .clock { font-size: 13px; color: #888; font-family: monospace; border: 1px solid #444; padding: 2px 8px; border-radius: 4px; background: #000; }
+        .menu-icon { color: #fff; font-size: 20px; cursor: pointer; }
+        
+        .dropdown-menu { display: none; position: absolute; right: 10px; top: 55px; background: #000; border: 1px solid #333; padding: 10px; z-index: 1000; }
+        .dropdown-menu a { color: #fff; text-decoration: none; display: block; padding: 8px; font-size: 14px; }
+        .show { display: block; }
+
+        .live-banner { background: #262626; padding: 15px; border-radius: 6px; margin-bottom: 10px; text-align: center; border: 1px solid #333; }
+        .match-title { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+        .native-player, .youtube-player, .waiting-image { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid #333; display: none; margin-bottom: 10px; }
+        
+        .server-container { margin: 10px 0; background: #262626; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .server-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-server { padding: 10px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-server.active { background: #1d4ed8; border-color: #1d4ed8; }
+        .status-text { font-size: 11px; color: #888; margin-top: 10px; text-align: center; font-family: monospace; }
+
+        .chat-container { background: #262626; border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-top: 10px; }
+        .chat-header { background: #1a1a1a; padding: 15px; font-size: 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; border-bottom: 1px solid #333; }
+        .chat-status { font-size: 11px; color: #888; font-weight: normal; }
+        .chat-wrapper { height: 380px; width: 100%; }
+        
+        .wa-channel-button { display: block; text-align: center; margin-top: 20px; padding: 15px; background: #25D366; color: #000; font-weight: bold; text-decoration: none; border-radius: 6px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-wrapper">
+        <div class="brand-header">
+            <a href="#" class="brand-logo"><i class="fas fa-football-ball"></i> ChipStream<span>26</span></a>
+            <div class="menu-wrapper">
+                <!-- Jam dipindah ke sini -->
+                <div id="clock" class="clock">00:00:00</div>
+                <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+                <div id="myDropdown" class="dropdown-menu">
+                    <a href="https://mantechshop1140.blogspot.com/2026/06/home.html?m=1"><i class="fas fa-home"></i> Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="live-banner-box" class="live-banner">
+            <h1 id="web-match-title" class="match-title">LIVE NOW MATCH DAY</h1>
+        </div>
+
+        <div id="logo-container" class="logo-container" style="display: none;">
+            <img id="foto-atas" style="width:100%; border-radius:6px; margin-bottom:10px;" src="" alt="Papan Skor">
+        </div>
+
+        <video id="player-biasa" class="native-player" controls autoplay preload="auto"></video>
+        <iframe id="player-youtube" class="youtube-player" src="" frameborder="0" allowfullscreen></iframe>
+        <img id="waiting-image" class="waiting-image" src="" alt="Waiting for next match">
+
+        <div id="server-box" class="server-container" style="display: none;">
+            <div class="server-grid">
+                <button id="btn-server1" class="btn-server" onclick="pindahServer(1)">Server 1</button>
+                <button id="btn-server2" class="btn-server" onclick="pindahServer(2)">Server 2</button>
+                <button id="btn-server3" class="btn-server" onclick="pindahServer(3)">Server 3</button>
+                <button id="btn-server4" class="btn-server" onclick="pindahServer(4)">Server 4</button>
+            </div>
+            <div id="status-server-text" class="status-text">Playing: Server 1</div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <span>Chat Room</span>
+                <span class="chat-status"><i class="fas fa-check-circle"></i> Chat Online</span>
+            </div>
+            <div class="chat-wrapper">
+                <iframe src="https://my.cbox.ws/mntch-pildun" width="100%" height="100%" frameborder="0"></iframe>
+            </div>
+        </div>
+
+        <a href="https://whatsapp.com/channel/0029VbCrDhvBfxo9BuSvFB1o" target="_blank" class="wa-channel-button">
+            <i class="fab fa-whatsapp"></i> Join WhatsApp Info Match Day
+        </a>
+    </div>
+
+    <script>
+        function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
+        window.onclick = function(event) { if (!event.target.matches('.menu-icon') && !event.target.matches('.fa-bars')) { var d = document.getElementsByClassName("dropdown-menu"); for (var i=0; i<d.length; i++) { d[i].classList.remove('show'); } } }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const playerBiasa = document.getElementById('player-biasa');
+        const playerYoutube = document.getElementById('player-youtube');
+        const waitingImg = document.getElementById('waiting-image');
+        const serverBox = document.getElementById('server-box');
+        const statusText = document.getElementById('status-server-text');
+        const btnServer1 = document.getElementById('btn-server1');
+        const btnServer2 = document.getElementById('btn-server2');
+        const btnServer3 = document.getElementById('btn-server3');
+        const btnServer4 = document.getElementById('btn-server4');
+        
+        const URL_JSON = '/stream.json?v=' + new Date().getTime();
+        let links = ["", "", "", ""]; 
+
+        function getYoutubeId(url) { const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/; const match = url.match(regExp); return (match && match[2].length === 11) ? match[2] : null; }
+
+        function jalankanStream(linkUrl) {
+            if (!linkUrl || linkUrl === "-") return;
+            waitingImg.style.display = 'none'; playerYoutube.style.display = 'none'; playerBiasa.style.display = 'none'; playerYoutube.src = "";
+            const ytId = getYoutubeId(linkUrl);
+            if (ytId) { playerYoutube.src = "https://www.youtube.com/embed/" + ytId + "?autoplay=1"; playerYoutube.style.display = 'block'; } 
+            else { playerBiasa.src = linkUrl; playerBiasa.style.display = 'block'; playerBiasa.play().catch(() => {}); }
+        }
+
+        function resetActiveButtons() { [btnServer1, btnServer2, btnServer3, btnServer4].forEach(b => b.classList.remove('active')); }
+        function pindahServer(n) {
+            resetActiveButtons(); statusText.innerText = "Playing: Server " + n;
+            document.getElementById('btn-server' + n).classList.add('active');
+            jalankanStream(links[n-1]);
+        }
+
+        fetch(URL_JSON).then(res => res.json()).then(data => {
+            if (data[0] && data[0] !== "-") { document.getElementById('logo-container').style.display = 'block'; document.getElementById('foto-atas').src = data[0]; }
+            links = [data[1], data[2], data[3], data[4]];
+            const linkWaiting = data[5]; 
+            const namaTanding = data[6]; 
+            
+            if (namaTanding && namaTanding !== "-") document.getElementById('web-match-title').innerText = namaTanding;
+            
+            let anyActive = false;
+            [btnServer1, btnServer2, btnServer3, btnServer4].forEach((btn, i) => {
+                if (links[i] && links[i] !== "-") { btn.style.display = 'block'; anyActive = true; } 
+                else { btn.style.display = 'none'; }
+            });
+
+            if (anyActive) { serverBox.style.display = 'block'; pindahServer(1); } 
+            else { waitingImg.src = linkWaiting; waitingImg.style.display = 'block'; }
+        });
+    </script>
+        <script src="https://pl30270388.effectivecpmnetwork.com/f6/04/48/f6044884d21156fe8f195699e1c4f11e.js"></script>
+    <script async="async" data-cfasync="false" src="https://pl30270387.effectivecpmnetwork.com/fcdf67528a875e8a02ffa5acde8e957f/invoke.js"></script>
+    <div id="container-fcdf67528a875e8a02ffa5acde8e957f"></div>
+</body>
+</html>
